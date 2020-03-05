@@ -34,6 +34,33 @@ var app = http.createServer(function(request,response){
           response.end(html);
         });
       } else {
+        db.query(`SELECT * FROM topic`, function (error, topics){
+          if(error){
+            throw error;
+          }
+          db.query(`SELECT * FROM topic WHERE id=?`, [queryData.id], function(error2, topic){
+            if(error2){
+              throw error2;
+            }
+            var title = topic[0].title;
+            var description = topic[0].description;
+            var list = template.List(topics);
+            var html = template.HTML(title, list, 
+              `<h2>${title}</h2>${description}`,
+              `<a href="/create">create</a>
+                <a href="/update?id=${queryData.id}">update</a>
+                <form action="delete_process" method="POST">
+                  <input type="hidden" name="id" value="${queryData.id}">
+                  <input type="submit" value="delete">
+                </form>`
+            );
+            response.writeHead(200);
+            response.end(html);
+          });
+        
+        });
+
+        /*
         fs.readdir('./data', function(error, filelist){
           var filteredId = path.parse(queryData.id).base;
           fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
@@ -56,6 +83,7 @@ var app = http.createServer(function(request,response){
             response.end(html);
           });
         });
+        */
       }
     } else if(pathname === '/create'){
       fs.readdir('./data', function(error, filelist){
