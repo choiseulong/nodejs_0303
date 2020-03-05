@@ -130,11 +130,11 @@ var app = http.createServer(function(request,response){
           body += data;
         });
         request.on('end', function(){
-          var post = qs.parse(body); // 정보를 객체화
+          var post = qs.parse(body); 
           db.query(`UPDATE topic SET title=?, description=?, author_id=1 WHERE id=?`, [post.title, post.description, post.id], function(error, result){
-            response.writeHead(302, {Location:`/?id=${post.id}`}); // 302가 redirection 이래
+            response.writeHead(302, {Location:`/?id=${post.id}`}); 
             response.end('success');
-          })
+          });
         });
     } else if (pathname === '/delete_process'){
       var body = '';
@@ -142,12 +142,13 @@ var app = http.createServer(function(request,response){
           body += data;
         });
         request.on('end', function(){
-          var post = qs.parse(body); // 정보를 객체화
-          var id = post.id;
-          var filteredId = path.parse(id).base;
-          fs.unlink(`data/${filteredId}`, function(err){
-            response.writeHead(302, {Location:`/`}); // 302가 redirection 이래 홈으로
-            response.end('success');
+          var post = qs.parse(body); 
+          db.query(`DELETE FROM topic WHERE id = ?`, [post.id], function(error, result){
+            if(error){
+              throw error;
+            }
+            response.writeHead(302, {Location:`/`}); 
+            response.end();
           });
       });
     } else {
